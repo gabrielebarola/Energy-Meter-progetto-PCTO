@@ -1,4 +1,9 @@
-@import "nord.css";
+:root {
+    --primary: #4b5263;
+    --bg: #282c34;
+    --cta: #c678dd;
+    --white: #FFF;
+}
 
 * {
     margin: 0;
@@ -10,7 +15,7 @@
 html,
 body {
     height: 100%;
-    background-color: var(--nord0);
+    background-color: var(--bg);
 }
 
 .container {
@@ -21,7 +26,7 @@ body {
 
 .dashboard {
     flex-basis: 90%;
-    background-color: var(--nord0);
+    background-color: var(--bg);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -36,9 +41,8 @@ body {
     justify-content: space-around;
     align-items: center;
 
-    background-color: var(--nord1);
-    color: var(--nord4);
-    border-radius: 1em 1em 0 0;
+    background-color: var(--primary);
+    border-radius: 0.5em 0.5em 0 0;
 }
 
 .logo,
@@ -54,13 +58,16 @@ body {
 
 .menu_item {
     display: inline-block;
+    margin: auto;
+    border-radius: 1em;
 }
 
 .menu_item_link {
     text-decoration: none;
-    color: var(--nord4);
+    color: var(--bg);
     text-align: center;
-    padding: 0 2em;
+    padding: 0.5em 0.5em;
+    margin: 0 1em;
     display: block;
 
     /*for taping link on mobile*/
@@ -75,9 +82,17 @@ body {
     display: none;
 }
 
+.menu_item_active {
+    background-color: var(--bg);
+}
+
+.menu_item_active a {
+    color: var(--cta);
+}
+
 .name {
     padding: 0.3em 1em;
-    color: var(--nord4);
+    color: var(--white);
     text-align: center;
     width: 100%;
     box-shadow: 0 0.2em 1.2em 0 rgba(0, 0, 0, .2);
@@ -85,7 +100,7 @@ body {
 
 }
 
-.cards_container {
+.info_cards_container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -94,7 +109,7 @@ body {
 }
 
 .card {
-    background-color: var(--nord3);
+    background-color: var(--primary);
     padding: 2em;
     margin: 0.5em 1em;
     width: 80%;
@@ -103,11 +118,11 @@ body {
 }
 
 .card_title {
-    color: var(--nord4);
+    color: var(--white);
 }
 
 .card_content {
-    color: var(--nord4);
+    color: var(--white);
     font-weight: bold;
     padding-top: 0.5em;
 }
@@ -143,21 +158,25 @@ body {
     .menu {
         width: 100%;
         align-self: center;
-
     }
 
     .menu_item {
         display: block;
-        width: 100%;
+        width: 90%;
     }
 
     .menu_item:hover {
-        background-color: var(--nord2);
+        background-color: var(--cta);
+    }
+
+    .menu_item:hover .menu_item_link {
+        color: var(--bg);
     }
 
 
     .menu_item_link {
-        padding: 3em 0;
+        padding: 2em 0;
+        margin: 1em 0;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -170,14 +189,14 @@ body {
         font-size: 2.5em;
     }
 
-    .cards_container {
+    .info_cards_container {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
     }
 
     .card {
-        width: 45%;
+        width: 20%;
         padding: 3em 2em;
     }
 }
