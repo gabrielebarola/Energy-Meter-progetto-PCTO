@@ -2,24 +2,34 @@ from MicroWebSrv2 import MicroWebSrv2
 from time import sleep_ms, time
 from machine import Timer, RTC
 from micropython import const
+from random import randint
+from src.logger import Logger
+import json
 
-_mins = const(15)
+_mins = const(5)
+readings = [0,0,0]
 
 def OnWebSocketTextMessage(websocket, msg):
     if msg == 'update_data':
-        websocket.SendTextMessage(str(time()))
+        websocket.SendTextMessage(json.dumps({
+            "type": "measures",
+            "content": str(readings)
+        }))
+    elif msg == "24graph_data":
+        websocket.SendTextMessage(json.dumps({
+            "type": "24chart",
+            "content": 0
+        }))
 
 def OnWebSocketAccepted(server, websocket):
-    print(f"aperto {websocket.Request.UserAddress}")
     websocket.OnTextMessage = OnWebSocketTextMessage
 
 def log(readings):
     print(readings)
 
 def main():
-    readings = {
-        "secs": time()
-    }
+
+    logger = Logger("prova1db")
     
     rtc = RTC()
     print(rtc.datetime())
@@ -40,14 +50,23 @@ def main():
 
     try:
         while True:
+            #generate fake readings
+            readings[0] = 230 + randint(-100,100)/10
+            new_current = readings[1] + randint(-10,10)/10
+            if new_current < 0:
+                new_current = 0
+            if new_current > 25:
+                new_current = 25
+            readings[1] = new_current
+            readings[2] = 50 + randint(-10,10)/10
+    
             #evaluates if minutes is multiple of 15 to start the timer
             if to_init and not rtc.datetime()[5]%_mins:
                 print("entered")
-                log(readings)
-                logging_timer.init(period=(_mins*60000), callback= lambda t: log(readings))
+                logger.log(time(), readings)
+                logging_timer.init(period=(_mins*60000), callback= lambda t: Logger.log(time(), readings))
                 to_init = False
 
-            readings["secs"] = time()
             sleep_ms(500)
     except KeyboardInterrupt:
         logging_timer.deinit()

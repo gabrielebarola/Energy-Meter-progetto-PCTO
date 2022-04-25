@@ -1,0 +1,275 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+:root {
+    --bg: #212429;
+    --primary: #272a2f;
+    --accent: #fa423b;
+    --green: #5EEB5B;
+    --yellow: #FABC3C;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Noto Sans", sans-serif;
+    color: white;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #3c434b;
+    overflow: hidden;
+}
+
+.main_container {
+    border-radius: 1.5rem;
+    background-color: var(--bg);
+    height: 95%;
+    flex-basis: 95%;
+    padding: 2rem;
+    box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
+/*NAVBAR---------------------------------------------------------------------------*/
+
+.nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.mobile_name {
+    display: none;
+}
+
+.nav h1 {
+    font-weight: bold;
+    font-size: 1.7rem;
+}
+
+.logo * {
+    display: inline;
+}
+
+.logo span {
+    font-size: 2rem;
+    vertical-align: center;
+    color: var(--accent);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.menu {
+    transition: all 300ms ease;
+    padding: 0.5rem;
+    background-color: var(--primary);
+    border-radius: 2rem;
+    box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    margin: auto;
+}
+
+.menu:hover {
+    transform: scale(1.03);
+}
+
+.menu li {
+    display: inline;
+}
+
+.menu_item {
+    text-decoration: none;
+    padding: 0.5rem;
+}
+
+.menu_item span {
+    transition: all 300ms ease;
+}
+
+.menu_item:hover span {
+    color: var(--accent);
+}
+
+.menu_item_active span {
+    border-bottom: 0.2rem solid var(--accent);
+}
+
+
+/*DASHBOARD---------------------------------------------------------------------------*/
+
+.dashboard {
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.dashboard>* {
+    flex: 1 1 25%;
+}
+
+.card {
+    width: 100%;
+    padding: 1.5rem;
+}
+
+.measure_card {
+    height: 25%;
+}
+
+.bigger_cards_cont {
+    height: 75%;
+    display: flex;
+}
+
+.bigger_card_cont>* {
+    flex-basis: 50%;
+    flex-shrink: 1;
+}
+
+.card_inner {
+    transition: all 300ms ease;
+    width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    background-color: var(--primary);
+    box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart_container {
+    border-radius: 1rem;
+    background-color: var(--primary);
+    box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    position: relative;
+}
+
+.card_inner>* {
+    flex: 1 1 100%;
+}
+
+.card_inner:hover {
+    transform: scale(1.05);
+}
+
+.card_inner header {
+    display: block;
+    padding-top: 1.2rem;
+    border-bottom: 0.2rem solid var(--bg);
+}
+
+.card_inner header h3 {
+    font-size: 1.5rem;
+}
+
+.card_inner footer {
+    display: flex;
+    align-items: flex-end;
+    margin-top: 0.5rem;
+}
+
+.card_inner header>* {
+    display: inline;
+}
+
+.card_inner header span {
+    opacity: 0.4;
+}
+
+.card_inner .selected {
+    display: none;
+}
+
+.card_active .selected {
+    display: inline;
+    opacity: 1;
+    color: var(--accent);
+    font-size: 0.8rem;
+}
+
+.value {
+    font-size: 2.5rem;
+    vertical-align: bottom;
+}
+
+.unit {
+    font-size: 1.5rem;
+    opacity: 0.4;
+    margin: 0.4rem;
+}
+
+
+/*MOBILE---------------------------------------------------------------------------*/
+
+@media (max-width:1024px) {
+    .main_container {
+        flex-direction: column-reverse;
+        justify-content: space-between;
+        height: 100%;
+        flex-basis: 100%;
+        border-radius: 0%;
+        padding: 0;
+    }
+    .nav {
+        margin-bottom: 0;
+        grid-template-columns: auto;
+    }
+    .menu {
+        width: 100%;
+        border-radius: 1rem 1rem 0 0;
+        padding: 1rem;
+        display: flex;
+    }
+    .menu li {
+        margin: auto
+    }
+    .menu_item {
+        padding: 2rem;
+    }
+    .menu_item span {
+        font-size: 2rem;
+    }
+    .name {
+        display: none;
+    }
+    .mobile_name {
+        display: block;
+        text-align: center;
+        box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.09);
+        padding: .5rem;
+    }
+    .logo {
+        display: none;
+    }
+    .dashboard {
+        overflow-y: scroll;
+    }
+    .dashboard>* {
+        flex: 1 1 100%;
+    }
+    .card_inner {
+        width: 95%;
+        margin: 0 auto;
+    }
+}
