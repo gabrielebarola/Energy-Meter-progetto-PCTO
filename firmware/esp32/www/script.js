@@ -33,33 +33,6 @@ const options = {
     maintainAspectRatio: false
 }
 
-// TIMERS --------------------------
-let update_timer
-let graph_timer
-
-let old_last
-
-function start_update(socket) {
-    update_timer = setInterval(function () { socket.send('update_data'); }, 1000);
-};
-
-function start_chart(socket) {
-    //get data from the last 24h
-    now = Math.floor(Date.now() / 1000);
-    old_last = Math.floor(now / secs) * secs;
-    socket.send("chart-from-to:" + (old_last - 6 * 3600) + ":" + old_last)
-
-    graph_timer = setInterval(function () {
-        now = Math.floor(Date.now() / 1000);
-        last = Math.floor(now / secs) * secs;
-        console.log(last)
-        if (last > old_last) {
-            old_last = last
-            socket.send('chart:' + last);
-        }
-    }, 30000);
-};
-
 // GLOBAL VARS ANS DOM OBJECTS --------
 let inst_values = [0.0, 0.0, 0.0, 0.0, 0.0]
 const measure_cards = document.querySelectorAll(".measure_card>.card_inner");
@@ -68,33 +41,33 @@ const menu_items = document.querySelectorAll(".menu_item")
 // 24H CHART ----------------------------------
 const chart24h_ctx = document.getElementById("24h_chart")
 const chart24h_data = [{
-    label: 'Voltage',
-    data: [],
-    fill: false,
-    borderColor: accent,
-    tension: 0.2,
-},
-{
-    label: 'Current',
-    data: [],
-    fill: false,
-    borderColor: accent,
-    tension: 0.2,
-},
-{
-    label: 'Frequency',
-    data: [],
-    fill: false,
-    borderColor: accent,
-    tension: 0.2,
-},
-{
-    label: 'Power',
-    data: [],
-    fill: false,
-    borderColor: accent,
-    tension: 0.2,
-},
+        label: 'Voltage',
+        data: [],
+        fill: false,
+        borderColor: accent,
+        tension: 0.2,
+    },
+    {
+        label: 'Current',
+        data: [],
+        fill: false,
+        borderColor: accent,
+        tension: 0.2,
+    },
+    {
+        label: 'Frequency',
+        data: [],
+        fill: false,
+        borderColor: accent,
+        tension: 0.2,
+    },
+    {
+        label: 'Power',
+        data: [],
+        fill: false,
+        borderColor: accent,
+        tension: 0.2,
+    },
 ]
 const chart24h = new Chart(chart24h_ctx, {
     type: 'line',
@@ -118,12 +91,12 @@ let ip = window.location.hostname
 let socket = new WebSocket("ws://" + ip);
 
 
-socket.onopen = function (event) {
-    start_update(socket)
-    start_chart(socket)
+socket.onopen = function(event) {
+    console.log("websocket connected");
+    //richiesta dati grafico solo dopo la connessione del socket
 };
 
-socket.onmessage = function (event) {
+socket.onmessage = function(event) {
     e = JSON.parse(event.data)
     console.log(e)
     if (e.type == 'measures') {
@@ -180,22 +153,21 @@ socket.onmessage = function (event) {
     }
 };
 
-socket.onclose = function (event) {
-    clearInterval(update_timer)
-    clearInterval(graph_timer)
+socket.onclose = function(event) {
+    console.log("websocket closed")
 };
 
 // CARDS AND MENU SELECTION
 
 menu_items.forEach(item => {
-    item.addEventListener("click", function () {
+    item.addEventListener("click", function() {
         document.querySelector(".menu_item_active").classList.remove("menu_item_active");
         item.classList.add("menu_item_active");
     })
 })
 
 measure_cards.forEach((card, index) => {
-    card.addEventListener("click", function () {
+    card.addEventListener("click", function() {
         document.querySelector('.card_active').classList.remove('card_active')
         card.classList.add('card_active')
         last_index = index

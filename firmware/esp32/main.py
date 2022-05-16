@@ -1,3 +1,5 @@
+from matplotlib.pyplot import connect
+import websockets
 from MicroWebSrv2 import MicroWebSrv2
 from time import sleep_ms, time
 from machine import Timer, RTC
@@ -12,12 +14,14 @@ _diff = const(946684800)
 
 readings = [0.0, 0.0, 0.0, 0.0]
 logger = Logger("prova1db")
+connected_sockets = []
 
+def update_sockets():
+    for socket in connected_sockets:
+        socket.SendTextMessage(json.dumps({"type": "measures", "content": readings}))
 
 def OnWebSocketTextMessage(websocket, msg):
-    if msg == "update_data":
-        websocket.SendTextMessage(json.dumps({"type": "measures", "content": readings}))
-    elif "chart-from-to" in msg:
+    if "chart-from-to" in msg:
         splitted = msg.split(":")
         from_timestamp = int(splitted[1]) - _diff
         to_timestamp = int(splitted[2]) - _diff
@@ -38,28 +42,29 @@ def OnWebSocketTextMessage(websocket, msg):
 
         websocket.SendTextMessage(json.dumps({"type": "chart-init-stop"}))
 
-    elif "chart" in msg:
-        splitted = msg.split(":")
-        timestamp = int(splitted[1]) - _diff
-        websocket.SendTextMessage(
+def OnWebSocketClosed(server, websocket):
+    connected_sockets.remove(websocket)
+
+def OnWebSocketAccepted(server, websocket):
+    connected_sockets.append(websocket)
+    websocket.OnTextMessage = OnWebSocketTextMessage
+    websocket.OnClosed = OnWebSocketClosed
+
+
+def log(time, readings):
+    logger.log(time, readings)
+    for socket in connected_sockets:
+        socket.SendTextMessage(
             json.dumps(
                 {
                     "type": "chart-add",
                     "content": {
-                        "timestamp": timestamp + _diff,
-                        "measures": logger.get(str(timestamp).encode()),
+                        "timestamp": time + _diff,
+                        "measures": readings,
                     },
                 }
             )
         )
-
-
-def OnWebSocketAccepted(server, websocket):
-    websocket.OnTextMessage = OnWebSocketTextMessage
-
-
-def log(readings):
-    print(readings)
 
 
 def main():
@@ -96,10 +101,10 @@ def main():
             # evaluates if minutes is multiple of 15 to start the timer
             if to_init and not rtc.datetime()[5] % _mins:
                 print("entered")
-                logger.log(time(), readings)
+                log(time(), readings)
                 logging_timer.init(
                     period=(_mins * 60000),
-                    callback=lambda t: logger.log(time(), readings),
+                    callback=lambda t: log(time(), readings),
                 )
                 to_init = False
 
