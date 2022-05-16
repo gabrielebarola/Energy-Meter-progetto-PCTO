@@ -1,6 +1,15 @@
+//PARAMETERS -------------------------------
+const mins = 5
+const secs = mins * 60
+
+let last_index = 0
+
+
+// COLORS -----------------------------------
 const accent = '#fa423b'
 const bg = '#212429'
 
+// GLOBAL CHARTS SETTINGS -------------------
 const options = {
     scales: {
         x: {
@@ -24,45 +33,68 @@ const options = {
     maintainAspectRatio: false
 }
 
-
-ip = window.location.hostname
-let socket = new WebSocket("ws://" + ip);
+// TIMERS --------------------------
 let update_timer
 let graph_timer
 
-let inst_values = [0.0, 0.0, 0.0, 0.0, 0.0]
+let old_last
 
+function start_update(socket) {
+    update_timer = setInterval(function () { socket.send('update_data'); }, 1000);
+};
+
+function start_chart(socket) {
+    //get data from the last 24h
+    now = Math.floor(Date.now() / 1000);
+    old_last = Math.floor(now / secs) * secs;
+    socket.send("chart-from-to:" + (old_last - 6 * 3600) + ":" + old_last)
+
+    graph_timer = setInterval(function () {
+        now = Math.floor(Date.now() / 1000);
+        last = Math.floor(now / secs) * secs;
+        console.log(last)
+        if (last > old_last) {
+            old_last = last
+            socket.send('chart:' + last);
+        }
+    }, 30000);
+};
+
+// GLOBAL VARS ANS DOM OBJECTS --------
+let inst_values = [0.0, 0.0, 0.0, 0.0, 0.0]
 const measure_cards = document.querySelectorAll(".measure_card>.card_inner");
 const menu_items = document.querySelectorAll(".menu_item")
+
+// 24H CHART ----------------------------------
 const chart24h_ctx = document.getElementById("24h_chart")
 const chart24h_data = [{
-        label: 'Voltage',
-        data: [],
-        fill: false,
-        borderColor: accent,
-        tension: 0.2,
-    },
-    {
-        label: 'Current',
-        data: [],
-        fill: false,
-        borderColor: accent,
-        tension: 0.2,
-    },
-    {
-        label: 'Frequency',
-        data: [],
-        fill: false,
-        borderColor: accent,
-        tension: 0.2,
-    },
-    {
-        label: 'Power',
-        data: [],
-        fill: false,
-        borderColor: accent,
-        tension: 0.2,
-    },
+    label: 'Voltage',
+    data: [],
+    fill: false,
+    borderColor: accent,
+    tension: 0.2,
+},
+{
+    label: 'Current',
+    data: [],
+    fill: false,
+    borderColor: accent,
+    tension: 0.2,
+},
+{
+    label: 'Frequency',
+    data: [],
+    fill: false,
+    borderColor: accent,
+    tension: 0.2,
+},
+{
+    label: 'Power',
+    data: [],
+    fill: false,
+    borderColor: accent,
+    tension: 0.2,
+},
 ]
 const chart24h = new Chart(chart24h_ctx, {
     type: 'line',
@@ -73,65 +105,100 @@ const chart24h = new Chart(chart24h_ctx, {
     options: options
 })
 
+// GENERIC FUNCTIONS --------------------
 function update_cards() {
     measure_cards.forEach((card, index) => {
         card.querySelector('.value').innerText = inst_values[index];
     })
 }
 
-//WEBSOCKET
-function start_update(socket) {
-    update_timer = setInterval(function() { socket.send('update_data'); }, 1000);
-};
+// WEBSOCKET ---------------------------
 
-function start_graph(socket) {
-    graph_timer = setInterval(function() {
-        socket.send('24graph_data');
-        chart24h.data.labels = [];
-        chart24h.data.datasets.forEach(ds => {
-            ds.data = [];
-        })
-    }, 120000);
-};
+let ip = window.location.hostname
+let socket = new WebSocket("ws://" + ip);
 
-socket.onopen = function(event) {
+
+socket.onopen = function (event) {
     start_update(socket)
-    start_graph(socket)
+    start_chart(socket)
 };
 
-socket.onmessage = function(event) {
+socket.onmessage = function (event) {
     e = JSON.parse(event.data)
+    console.log(e)
     if (e.type == 'measures') {
-        values_arr = e.content.slice(1, -1).split(", ");
-        inst_values[0] = values_arr[0];
-        inst_values[1] = values_arr[1];
-        inst_values[2] = values_arr[2];
-        inst_values[3] = (parseFloat(values_arr[0]) * parseFloat(values_arr[1])).toFixed(3);
+        values_arr = e.content;
+        inst_values[0] = values_arr[0].toFixed(2);
+        inst_values[1] = values_arr[1].toFixed(2);
+        inst_values[2] = values_arr[2].toFixed(2);
+        inst_values[3] = (values_arr[0] * values_arr[1]).toFixed(3);
         update_cards()
-    } else if (e.type == "24chart") {
+    } else if (e.type == "chart-init") {
+        console.log("init")
+        chart24h.data.labels = []
+        chart24h_data.forEach(ds => {
+            ds.data = []
+        })
+    } else if (e.type == "chart-append") {
+        date = new Date(e.content.timestamp * 1000);
+        label = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+        chart24h.data.labels.push(label)
+        values_arr = e.content.measures;
+        values = [
+            values_arr[0],
+            values_arr[1],
+            values_arr[2],
+            values_arr[0] * values_arr[1]
+        ]
+        chart24h_data.forEach((ds, index) => {
+            ds.data.push(values[index])
+        })
+    } else if (e.type == "chart-init-stop") {
+        console.log("stopped")
+        chart24h.data.datasets = [chart24h_data[0]]
+        console.log(chart24h.data)
+        chart24h.update()
+    } else if (e.type == "chart-add") {
+        date = new Date(e.content.timestamp * 1000);
+        label = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+        chart24h.data.labels.push(label)
+        chart24h.data.labels.shift()
+        alues_arr = e.content.measures;
+        values = [
+            values_arr[0],
+            values_arr[1],
+            values_arr[2],
+            values_arr[0] * values_arr[1]
+        ]
+        chart24h_data.forEach((ds, index) => {
+            ds.data.push(values[index]);
+            ds.data.shift();
+        })
+        chart24h.data.datasets = [chart24h_data[last_index]]
+        chart24h.update()
 
     }
 };
 
-socket.onclose = function(event) {
+socket.onclose = function (event) {
     clearInterval(update_timer)
     clearInterval(graph_timer)
 };
 
-// CARDS SELECTION
+// CARDS AND MENU SELECTION
 
 menu_items.forEach(item => {
-    item.addEventListener("click", function() {
+    item.addEventListener("click", function () {
         document.querySelector(".menu_item_active").classList.remove("menu_item_active");
         item.classList.add("menu_item_active");
     })
 })
 
 measure_cards.forEach((card, index) => {
-    card.addEventListener("click", function() {
+    card.addEventListener("click", function () {
         document.querySelector('.card_active').classList.remove('card_active')
         card.classList.add('card_active')
-        console.log(index)
+        last_index = index
         chart24h.data.datasets = [chart24h_data[index]]
         chart24h.update()
     })

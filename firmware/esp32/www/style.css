@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
 :root {
     --bg: #212429;
     --primary: #272a2f;
@@ -134,14 +135,9 @@ body {
 }
 
 .bigger_cards_cont {
-    height: 75%;
     display: flex;
 }
 
-.bigger_card_cont>* {
-    flex-basis: 50%;
-    flex-shrink: 1;
-}
 
 .card_inner {
     transition: all 300ms ease;
@@ -183,7 +179,7 @@ body {
     font-size: 1.5rem;
 }
 
-.card_inner footer {
+.card_inner article {
     display: flex;
     align-items: flex-end;
     margin-top: 0.5rem;
@@ -231,45 +227,73 @@ body {
         border-radius: 0%;
         padding: 0;
     }
+
     .nav {
         margin-bottom: 0;
         grid-template-columns: auto;
     }
+
     .menu {
         width: 100%;
         border-radius: 1rem 1rem 0 0;
         padding: 1rem;
         display: flex;
     }
+
     .menu li {
         margin: auto
     }
+
     .menu_item {
         padding: 2rem;
     }
+
     .menu_item span {
         font-size: 2rem;
     }
+
     .name {
         display: none;
     }
+
     .mobile_name {
         display: block;
         text-align: center;
         box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.09);
         padding: .5rem;
     }
+
     .logo {
         display: none;
     }
+
     .dashboard {
         overflow-y: scroll;
     }
+
     .dashboard>* {
         flex: 1 1 100%;
     }
+
     .card_inner {
+        height: 100%;
+    }
+
+    .card_inner,
+    .graph_card {
         width: 95%;
         margin: 0 auto;
+    }
+
+    .card {
+        padding: 0.5rem;
+    }
+
+    .bigger_cards_cont {
+        flex-direction: column;
+    }
+
+    .card_inner header {
+        padding-top: 0.3rem;
     }
 }
