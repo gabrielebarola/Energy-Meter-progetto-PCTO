@@ -45,4 +45,5 @@ Il progetto unisce in unico pacchetto tutte le funzionalità di seguito riportat
   <a href="">
     <img src="images/slides.png" alt="Clicca per vedere la presentazione" width="80" height="80">
   </a>
+  Premere sul logo per vedere la presentazione
 </div>
