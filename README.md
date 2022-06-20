@@ -26,14 +26,23 @@ Il progetto unisce in unico pacchetto tutte le funzionalità di seguito riportat
 * GRAFICI INTERATTIVI
 
 ## Altre tecnologie e software utilizzati
+
 * [MicroPython](https://micropython.org/)
 * [Kicad](https://www.kicad.org/)
 * [VSCode](https://code.visualstudio.com/)
 * [MicroWebSrv2](https://github.com/jczic/MicroWebSrv2)
 * [Charts.js](https://github.com/chartjs/Chart.js)
 
-
 ## Screenshot
+
 <div align="center">
   <img src="images/screenshot.png" alt="Dashboard">
+</div>
+
+## Presentazione per l'esame di stato
+
+<div>
+  <a href="">
+    <img src="images/slides.png" alt="Clicca per vedere la presentazione" width="80" height="80">
+  </a>
 </div>
