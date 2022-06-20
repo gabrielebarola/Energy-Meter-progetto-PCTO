@@ -130,12 +130,16 @@ body {
     padding: 1.5rem;
 }
 
-.measure_card {
-    height: 25%;
-}
-
 .bigger_cards_cont {
     display: flex;
+}
+
+.graph_card {
+    flex-basis: 65%;
+}
+
+.phase {
+    flex-basis: 35%;
 }
 
 
@@ -167,6 +171,10 @@ body {
 
 .card_inner:hover {
     transform: scale(1.05);
+}
+
+.no_hover:hover {
+    transform: scale(1);
 }
 
 .card_inner header {
@@ -213,6 +221,15 @@ body {
     font-size: 1.5rem;
     opacity: 0.4;
     margin: 0.4rem;
+}
+
+.phase_cards {
+    flex-grow: 1;
+    display: block;
+}
+
+.phase_cards>* {
+    width: 100%;
 }
 
 

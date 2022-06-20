@@ -20,8 +20,7 @@ def wlan_connect(ssid="MYSSID", password="MYPASS"):
     print("network config:", wlan.ifconfig())
 
 
-# wlan_connect('Gabriele 2.4Ghz', 'Gabriele0253')
-wlan_connect("gab", "hooq7257")
+wlan_connect("gab", "******")
 while True:
     try:
         ntptime.settime()

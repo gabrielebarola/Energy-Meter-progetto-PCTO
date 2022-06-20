@@ -1601,7 +1601,7 @@
       (reference "U0") (unit 1) (value "EPSD_12/250") (footprint "")
     )
     (path "/399f0da3-6e3c-4065-9b66-549f535a1e2b"
-      (reference "U1") (unit 1) (value "INA111") (footprint "Package_DIP:DIP-8_W7.62mm_Socket")
+      (reference "U1") (unit 1) (value "INA111") (footprint "")
     )
   )
 )

@@ -1,24 +1,26 @@
-from matplotlib.pyplot import connect
-import websockets
 from MicroWebSrv2 import MicroWebSrv2
 from time import sleep_ms, time
 from machine import Timer, RTC
 from micropython import const
-from random import randint
+from src.database import Database
 from src.logger import Logger
-import json
+import json, gc
 
 _mins = const(5)
 _secs = const(5 * 60)
 _diff = const(946684800)
 
-readings = [0.0, 0.0, 0.0, 0.0]
-logger = Logger("prova1db")
+db = Database("prova1db")
+logger = Logger(freq=15, adc=32, en_i=19, en_v=21, en_p=22)
 connected_sockets = []
+
 
 def update_sockets():
     for socket in connected_sockets:
-        socket.SendTextMessage(json.dumps({"type": "measures", "content": readings}))
+        socket.SendTextMessage(
+            json.dumps({"type": "measures", "content": logger.readings})
+        )
+
 
 def OnWebSocketTextMessage(websocket, msg):
     if "chart-from-to" in msg:
@@ -29,7 +31,7 @@ def OnWebSocketTextMessage(websocket, msg):
 
         for i in range((to_timestamp - from_timestamp) // _secs):
             to_get = from_timestamp + ((i + 1) * _secs)
-            data = logger.get(str(to_get).encode())
+            data = db.get(str(to_get).encode())
 
             websocket.SendTextMessage(
                 json.dumps(
@@ -42,8 +44,10 @@ def OnWebSocketTextMessage(websocket, msg):
 
         websocket.SendTextMessage(json.dumps({"type": "chart-init-stop"}))
 
-def OnWebSocketClosed(server, websocket):
+
+def OnWebSocketClosed(websocket):
     connected_sockets.remove(websocket)
+
 
 def OnWebSocketAccepted(server, websocket):
     connected_sockets.append(websocket)
@@ -51,16 +55,18 @@ def OnWebSocketAccepted(server, websocket):
     websocket.OnClosed = OnWebSocketClosed
 
 
-def log(time, readings):
-    logger.log(time, readings)
+def log_data():
+    t = time()
+    db.log(t, logger.readings)
+
     for socket in connected_sockets:
         socket.SendTextMessage(
             json.dumps(
                 {
                     "type": "chart-add",
                     "content": {
-                        "timestamp": time + _diff,
-                        "measures": readings,
+                        "timestamp": t + _diff,
+                        "measures": logger.readings,
                     },
                 }
             )
@@ -88,31 +94,26 @@ def main():
 
     try:
         while True:
-            # generate fake readings
-            readings[0] = 230 + randint(-100, 100) / 10
-            new_current = readings[1] + randint(-10, 10) / 10
-            if new_current < 0:
-                new_current = 0
-            if new_current > 25:
-                new_current = 25
-            readings[1] = new_current
-            readings[2] = 50 + randint(-10, 10) / 10
+            logger.read()
+            update_sockets()
 
             # evaluates if minutes is multiple of 15 to start the timer
             if to_init and not rtc.datetime()[5] % _mins:
-                print("entered")
-                log(time(), readings)
+                log_data()
+
                 logging_timer.init(
                     period=(_mins * 60000),
-                    callback=lambda t: log(time(), readings),
+                    callback=lambda t: log_data(),
                 )
                 to_init = False
 
-            sleep_ms(500)
+            gc.collect()
+
     except KeyboardInterrupt:
         logging_timer.deinit()
         server.Stop()
-        logger.close()
+        db.close()
 
 
-main()
+if __name__ == "__main__":
+    main()
