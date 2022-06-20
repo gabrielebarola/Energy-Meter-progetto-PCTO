@@ -41,7 +41,7 @@ Il progetto unisce in unico pacchetto tutte le funzionalità di seguito riportat
 ## Presentazione per l'esame di stato
 
 <div>
-  <a href="">
+  <a href="https://docs.google.com/presentation/d/1edAisyT30yDkEmbcdj5mdHnbcW9ENNGRGbsqXM53MuE/edit?usp=sharing">
     <img src="images/slides.png" alt="Clicca per vedere la presentazione" width="80" height="80">
   </a>
   Premere sul logo per vedere la presentazione
